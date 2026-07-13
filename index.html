@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Town | Factory Command Center v18.8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --bg-main: #060913;
+            --card-bg: #0d1226;
+            --input-bg: #151b36;
+            --border-color: rgba(138, 92, 246, 0.15);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-gold: #fbbf24;
+            --color-purple: #8b5cf6;
+            --color-success: #10b981;
+            --color-danger: #f43f5e;
+            --color-warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            padding: 25px; 
+            min-height: 100vh; 
+        }
+
+        .container { width: 100%; max-width: 1440px; margin: 0 auto; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 35px; background: linear-gradient(135deg, var(--card-bg) 0%, #111836 100%);
+            border-radius: 20px; margin-bottom: 25px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        header h1 { font-size: 32px; font-weight: 900; letter-spacing: 1px; color: #ffffff; }
+        header h1 span { color: var(--color-purple); font-size: 13px; font-weight: 700; display: block; margin-top: 2px; }
+        
+        .developer-signature {
+            font-size: 12px; color: var(--text-muted); margin-top: 8px;
+            background: rgba(139, 92, 246, 0.05); padding: 4px 14px; border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.2);
+            display: inline-block;
+        }
+        .developer-signature strong { color: var(--text-gold); }
+
+        .clock-box { text-align: left; }
+        #live-date { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        #live-time { font-size: 26px; font-weight: 900; color: var(--color-purple); font-family: monospace; text-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
+
+        .data-center-bar {
+            background: rgba(13, 18, 38, 0.6); backdrop-filter: blur(10px);
+            border: 1px dashed var(--border-color);
+            padding: 15px 25px; border-radius: 14px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .data-center-bar p { font-size: 13px; color: var(--text-muted); }
+        .data-btns { display: flex; gap: 10px; }
+        .btn-data { padding: 8px 18px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-export { background: transparent; color: var(--text-gold); border: 1px solid var(--text-gold); }
+        .btn-export:hover { background: var(--text-gold); color: #000; }
+        .btn-import { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-import:hover { background: rgba(255,255,255,0.03); color: #fff; }
+
+        .tabs-nav { display: flex; gap: 12px; margin-bottom: 25px; }
+        .tab-btn {
+            padding: 14px 28px; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; color: var(--text-muted); font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s;
+        }
+        .tab-btn.active { background: var(--color-purple); color: #ffffff; border-color: var(--color-purple); font-weight: 900; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .main-grid { display: flex; gap: 25px; align-items: start; }
+        
+        .form-card { 
+            width: 350px; flex-shrink: 0; background: var(--card-bg);
+            padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .form-card h3 { margin-bottom: 20px; color: #fff; font-size: 17px; font-weight: 900; border-bottom: 2px solid var(--color-purple); padding-bottom: 8px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px 14px; background: var(--input-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: var(--color-purple); background: #1a2244; }
+        .form-control.date-picker-input { text-align: left; direction: ltr; font-weight: 700; cursor: pointer; }
+        .btn-submit { width: 100%; padding: 12px; background: var(--color-purple); border: none; border-radius: 8px; color: #fff; font-weight: 900; font-size: 14px; cursor: pointer; margin-top: 5px; transition: all 0.2s; }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .orders-section { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .stat-box { background: var(--card-bg); padding: 20px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); position: relative; overflow: hidden; }
+        .stat-box h4 { font-size: 12px; color: var(--text-muted); font-weight: 700; }
+        .stat-box p { font-size: 26px; font-weight: 900; margin-top: 4px; }
+
+        .action-header-row { display: flex; justify-content: flex-end; margin-bottom: 5px; }
+        .btn-print-all { padding: 10px 20px; background: var(--color-purple); color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); }
+        .btn-print-all:hover { opacity: 0.95; transform: translateY(-1px); }
+
+        .premium-sales-summary {
+            background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;
+        }
+        .circle-progress-card { display: flex; align-items: center; gap: 25px; background: rgba(0,0,0,0.15); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.03); }
+        
+        .pure-css-circle {
+            position: relative; width: 110px; height: 110px; border-radius: 50%;
+            background: conic-gradient(var(--fill-color, #8b5cf6) calc(var(--percent, 0) * 1%), #1a203e 0);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .pure-css-circle::before { content: ""; position: absolute; width: 86px; height: 86px; border-radius: 50%; background: #0d1226; }
+        .circle-inner-text { position: relative; z-index: 2; font-size: 18px; font-weight: 900; color: #fff; text-align: center; line-height: 1.2; }
+        .circle-inner-text span { display: block; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+        .circle-info-side { display: flex; flex-direction: column; gap: 4px; }
+        .circle-info-side h5 { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .circle-info-side p { font-size: 24px; font-weight: 900; color: var(--text-gold); }
+        .circle-info-side .sub-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+        .commissions-display-bar {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;
+        }
+        .commission-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(13, 18, 38, 0.9) 100%);
+            border: 1px dashed var(--border-color); border-radius: 16px; padding: 20px 25px;
+            display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
+        }
+        .commission-card.locked {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.02) 0%, rgba(13, 18, 38, 0.9) 100%);
+            border-color: rgba(244, 63, 94, 0.2);
+        }
+        .commission-card.unlocked {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(13, 18, 38, 0.9) 100%);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .comm-meta h6 { font-size: 13px; color: var(--text-muted); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .comm-meta p { font-size: 24px; font-weight: 900; margin-top: 4px; color: #fff; }
+        .comm-status-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+        .cs-locked { background: rgba(244, 63, 94, 0.15); color: var(--color-danger); }
+        .cs-unlocked { background: rgba(16, 185, 129, 0.15); color: var(--color-success); animation: pulse 2s infinite; }
+
+        .order-container { display: flex; flex-direction: column; gap: 15px; }
+        .order-row-card {
+            background: linear-gradient(to left, var(--card-bg) 0%, #111732 100%); 
+            border-radius: 16px; padding: 20px 25px; 
+            border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 20px;
+            position: relative; transition: transform 0.2s;
+        }
+        .order-row-card:hover { transform: scale(1.005); }
+        .status-ontime { border-right: 6px solid var(--color-success); }
+        .status-delayed { border-right: 6px solid var(--color-danger); }
+        .status-warning { border-right: 6px solid var(--color-warning); }
+
+        .card-info-side { flex: 0 0 220px; display: flex; flex-direction: column; gap: 6px; }
+        .card-info-side .client-name { font-size: 19px; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-info-side .client-phone { font-size: 13px; color: var(--text-gold); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .btn-edit-phone { background: none; border: none; color: #c084fc; cursor: pointer; font-size: 11px; font-weight: 600; text-decoration: underline; }
+        .btn-edit-phone:hover { color: #fff; }
+        
+        .mega-badge { padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; display: inline-block; width: fit-content; }
+        .mb-success { background: rgba(16, 185, 129, 0.12); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .mb-danger { background: rgba(244, 63, 94, 0.12); color: var(--color-danger); border: 1px solid rgba(244, 63, 94, 0.2); }
+        .mb-warning { background: rgba(245, 158, 11, 0.12); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+        .card-timeline-side { flex-grow: 1; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); }
+        .timeline-visual-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative; }
+        .timeline-node { display: flex; flex-direction: column; gap: 3px; width: 45%; }
+        .timeline-node.start-node { text-align: right; }
+        .timeline-node.end-node { text-align: left; }
+        .timeline-node .node-lbl { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .timeline-node .node-date { font-size: 14px; color: #ffffff; font-weight: 800; direction: ltr; }
+        
+        .timeline-connector-line { flex-grow: 1; height: 2px; background: linear-gradient(to left, var(--color-success), var(--color-purple)); position: relative; margin: 0 10px; margin-top: 15px; }
+        .timeline-connector-line::before { content: "◀"; position: absolute; top: -7px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--text-gold); }
+
+        .timeline-days-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; font-size: 12px; }
+        .meta-days-box { display: flex; gap: 15px; }
+        .meta-days-box p { color: var(--text-muted); }
+        .meta-days-box p span { font-weight: 800; color: #fff; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        
+        .btn-inspect-days-icon { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 3px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; transition: all 0.2s; }
+        .btn-inspect-days-icon:hover { background: var(--color-purple); color: #fff; }
+
+        .card-finance-side { flex: 0 0 320px; display: flex; align-items: center; gap: 12px; background: rgba(6, 9, 19, 0.6); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
+        .fin-text { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-muted); min-width: 155px; }
+        .fin-text p span { font-weight: 700; color: #fff; }
+        
+        .fin-actions { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .pay-wrapper { display: flex; gap: 5px; }
+        .pay-wrapper input { width: 75px; padding: 7px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 12px; text-align: center; background: var(--bg-main); color: #fff; font-weight: 700; }
+        
+        .btn-action { padding: 7px 12px; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .btn-pay { background: transparent; color: var(--text-gold); border: 1px solid var(--text-gold); }
+        .btn-pay:hover { background: var(--text-gold); color: #000; }
+        .btn-close { background: #ffffff; color: #000000; font-weight: 800; }
+        .btn-close:hover { background: var(--color-success); color: #fff; }
+        
+        .btn-trash { background: transparent; border: none; color: var(--color-danger); cursor: pointer; font-size: 11px; width: fit-content; text-align: right; margin-top: 2px; }
+        .btn-trash:hover { text-decoration: underline; }
+
+        .archive-card { background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .archive-table { width: 100%; border-collapse: collapse; text-align: right; }
+        .archive-table th { background: rgba(0,0,0,0.2); padding: 14px 16px; color: var(--text-gold); font-weight: 700; border-bottom: 2px solid var(--border-color); font-size: 13px; }
+        .archive-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; color: #fff; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-header { padding: 16px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; color: var(--text-gold); font-weight: 700; }
+        .btn-close-modal { background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
+        .modal-body { padding: 20px; max-height: 450px; overflow-y: auto; }
+        
+        .inspect-day-row { display: flex; justify-content: space-between; padding: 11px 14px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
+        .day-work { background: rgba(16, 185, 129, 0.05); color: #fff; border: 1px solid rgba(16, 185, 129, 0.15); }
+        .day-off { background: rgba(244, 63, 94, 0.05); color: var(--text-muted); border: 1px solid rgba(244, 63, 94, 0.15); }
+
+        .badge-only-collect { background: rgba(245, 158, 11, 0.15); color: var(--text-gold); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+        .badge-normal-sale { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+        /* تعديل كود الـ CSS الخاص بالطباعة ليجبر الألوان على الخلفية البيضاء والكتابة السوداء النظيفة */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; }
+            .container { display: none !important; } /* إخفاء الشاشة الكاملة ومحتوياتها أثناء عملية الطباعة */
+            
+            #print-receipt-area, #print-receipt-area * { 
+                visibility: visible !important; 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+            }
+            #print-receipt-area { 
+                position: absolute; left: 0; top: 0; width: 100%; padding: 20px; 
+                direction: rtl; text-align: right; display: block !important; 
+            }
+            
+            .print-header { text-align: center; border-bottom: 3px double #000000; padding-bottom: 12px; margin-bottom: 25px; }
+            .print-header h1 { font-size: 32px; font-weight: 900; color: #000000 !important; }
+            .print-header h2 { font-size: 20px; font-weight: 700; margin-top: 5px; color: #000000 !important; }
+            .print-header p { font-size: 13px; color: #000000 !important; margin-top: 5px; }
+            
+            .print-body { font-size: 16px; color: #000000 !important; }
+            .print-body div { margin-bottom: 12px; }
+            
+            .print-bulk-item { 
+                border-bottom: 2px dashed #000000 !important; 
+                padding: 20px 0; 
+                line-height: 2; 
+                font-size: 16px; 
+                color: #000000 !important;
+                page-break-inside: avoid; /* منع انقسام أمر التشغيل الواحد بين صفحتين */
+            }
+            .print-bulk-item h3 { font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #000000 !important; }
+            .print-bulk-item strong { min-width: 140px; display: inline-block; color: #000000 !important; font-weight: 700; }
+            
+            .print-footer { text-align: center; border-top: 1px solid #000000; padding-top: 12px; font-size: 12px; margin-top: 40px; color: #000000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- مساحة الطباعة المنفصلة التلقائية -->
+<div id="print-receipt-area" style="display: none;"></div>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>OFFICE TOWN</h1>
+            <span>Elite Workspace & Factory Tracking Control Panel</span>
+            <div><div class="developer-signature">طُوّرت خصيصاً بواسطة المهندس: <strong>كريم علاء</strong>⚙️</div></div>
+        </div>
+        <div class="clock-box">
+            <div id="live-date">Loading...</div>
+            <div id="live-time">00:00:00</div>
+        </div>
+    </header>
+
+    <div class="data-center-bar">
+        <p>⚙️ مركز الحسابات ونقل البيانات المطور للأثاث والمشاريع بالمصنع</p>
+        <div class="data-btns">
+            <button class="btn-data btn-export" onclick="exportSystemData()">📥 تحميل داتا شيت الأوردرات</button>
+            <button class="btn-data btn-import" onclick="document.getElementById('importFileInput').click()">📤 رفع داتا شيت لتول معدلة</button>
+            <input type="file" id="importFileInput" style="display: none;" accept=".json" onchange="importSystemData(event)">
+        </div>
+    </div>
+
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tracking-tab', this)">💼 أوامر الإنتاج الجارية بالمصنع</button>
+        <button class="tab-btn" onclick="switchTab('archive-tab', this)">📁 أرشيف حسابات ومبيعات المصنع</button>
+        <button class="tab-btn" onclick="switchTab('sales-tab', this)">📊 لوحة متابعة التارجت والعمولات والبيع</button>
+    </div>
+
+    <div id="tracking-tab" class="tab-content active">
+        <div class="main-grid">
+            <div class="form-card">
+                <h3>إدراج أمر تشغيل بالمصنع</h3>
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label>اسم العميل / المشروع</label>
+                        <input type="text" id="clientName" class="form-control" placeholder="اسم العميل" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم هاتف العميل</label>
+                        <input type="text" id="clientPhone" class="form-control" placeholder="مثال: 01xxxxxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ دخول المصنع</label>
+                        <input type="text" id="startDate" class="form-control date-picker-input" readonly required>
+                    </div>
+                    <div class="form-group">
+                        <label>مدة التصنيع (أيام عمل)</label>
+                        <input type="number" id="durationDays" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>إجمالي حساب الأثاث (جنيه)</label>
+                        <input type="number" id="totalPrice" class="form-control" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تكلفة النقل والشحن (اختياري)</label>
+                        <input type="number" id="shippingPrice" class="form-control" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>المقدم المدفوع (جنيه)</label>
+                        <input type="number" id="paidPrice" class="form-control" min="0">
+                    </div>
+                    <button type="submit" class="btn-submit">إدراج وتتبع في المصنع 🚀</button>
+                </form>
+            </div>
+
+            <div class="orders-section">
+                <div class="stats-bar">
+                    <div class="stat-box" style="border-top: 3px solid var(--color-success);">
+                        <h4>أوردرات قيد الإنتاج</h4>
+                        <p id="totalOrdersCount">0</p>
+                    </div>
+                    <div class="stat-box" style="border-top: 3px solid var(--color-danger);">
+                        <h4>أوردرات متأخرة بالمصنع</h4>
+                        <p id="delayedOrdersCount" style="color: var(--color-danger);">0</p>
+                    </div>
+                    <div class="stat-box" style="border-top: 3px solid var(--text-gold);">
+                        <h4>مستحقات معلقة</h4>
+                        <p id="totalRemainingMoney" style="color: var(--text-gold);">0 ج</p>
+                    </div>
+                </div>
+
+                <div class="action-header-row">
+                    <button class="btn-print-all" onclick="printAllActiveOrders()">🖨️ طباعة كل أوامر التشغيل الجارية</button>
+                </div>
+
+                <div class="order-container" id="ordersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="archive-tab" class="tab-content">
+        <div class="archive-card">
+            <h3 style="margin-bottom: 15px; color: var(--text-gold);">الأرشيف الختامي لمبيعات وحسابات المصنع المغلقة</h3>
+            <table class="archive-table">
+                <thead>
+                    <tr>
+                        <th>اسم العميل</th>
+                        <th>رقم الهاتف</th>
+                        <th>تاريخ الدخول</th>
+                        <th>تاريخ الإغلاق</th>
+                        <th>حساب البضاعة</th>
+                        <th>بند النقل</th>
+                        <th>الحالة المادية</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="archiveList"></tbody>
+            </table>
+        </div>
+
+        <div class="archive-card">
+            <h3 style="margin-top: 20px; margin-bottom: 15px; color: var(--color-purple);">📁 سجل الأرشيف الشهري لتارجت المبيعات والعمولات</h3>
+            <table class="archive-table">
+                <thead>
+                    <tr>
+                        <th>الشهر المغلق</th>
+                        <th>التارجت المحدد</th>
+                        <th>إجمالي المبيعات</th>
+                        <th>نسبة الإنجاز</th>
+                        <th>الفعلية المحصلة</th>
+                        <th>عمولة المبيعات</th>
+                        <th>عمولة التحصيل</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyArchiveList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="sales-tab" class="tab-content">
+        <div class="premium-sales-summary">
+            <div class="circle-progress-card">
+                <div class="pure-css-circle" id="circleSales">
+                    <div class="circle-inner-text" id="circleSalesText">0%<span>إنجاز</span></div>
+                </div>
+                <div class="circle-info-side">
+                    <h5 id="salesTitleWithMonth">🎯 إنجاز تارجت المبيعات الشهري</h5>
+                    <p id="txtTotalSales">0 ج</p>
+                    <span class="sub-lbl" id="subSalesLbl">من أصل هدف بيع شهري</span>
+                </div>
+            </div>
+
+            <div class="circle-progress-card">
+                <div class="pure-css-circle" id="circleCollected" style="--fill-color: var(--color-success);">
+                    <div class="circle-inner-text" id="circleCollectedText">0%<span>تحصيل</span></div>
+                </div>
+                <div class="circle-info-side">
+                    <h5 id="collectedTitleWithMonth">💵 التحصيل النقدي الفعلي (الكاش)</h5>
+                    <p id="txtTotalCollected" style="color: var(--color-success);">0 ج</p>
+                    <span class="sub-lbl" id="subCollectedLbl">المحصل الفعلي المودع بالخزنة</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="commissions-display-bar">
+            <div class="commission-card" id="commSalesCard">
+                <div class="comm-meta">
+                    <h6>💼 عمولة المبيعات الفنية المكتسبة</h6>
+                    <p id="txtCommSales">0 ج</p>
+                </div>
+                <div class="comm-status-badge" id="badgeCommSales">مغلق</div>
+            </div>
+
+            <div class="commission-card" id="commCollectedCard">
+                <div class="comm-meta">
+                    <h6>💰 عمولة التحصيل للكاش فلو</h6>
+                    <p id="txtCommCollected">0 ج</p>
+                </div>
+                <div class="comm-status-badge" id="badgeCommCollected">مغلق</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="form-card">
+                <h3>إدارة التارجت الشهري</h3>
+                <div class="form-group">
+                    <label>تحديد تارجت الشهر الحالي (جنيه)</label>
+                    <div style="display: flex; gap: 5px; margin-bottom: 12px;">
+                        <input type="number" id="monthlyTargetInput" class="form-control" placeholder="ادخل التارجت">
+                        <button class="btn-submit" onclick="updateMonthlyTarget()" style="margin-top:0; width:auto; padding:0 15px;">حفظ</button>
+                    </div>
+                    <button class="btn-submit" onclick="forceCloseAndArchiveMonth()" style="background: var(--color-danger); color: #fff; font-size: 12px; padding: 8px;">
+                        📥 إغلاق وترحيل الشهر المنتهي يدوياً الآن
+                    </button>
+                </div>
+
+                <h3 style="margin-top: 25px;">تسجيل عملية بيع جديدة</h3>
+                <form id="salesForm">
+                    <div class="form-group">
+                        <label>البيان / العميل</label>
+                        <input type="text" id="saleNote" class="form-control" placeholder="مثال: أوردر كراسي مكتب عيادة" required>
+                    </div>
+                    <div class="form-group">
+                        <label>قيمة المبيعات (جنيه)</label>
+                        <input type="number" id="saleAmount" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ المحصل منها حالياً (جنيه)</label>
+                        <input type="number" id="saleCollected" class="form-control" min="0" required>
+                    </div>
+                    <button type="submit" class="btn-submit" style="background: var(--color-success); color: #fff;">تثبيت المبيعات وتحديث الحسابات 📊</button>
+                </form>
+
+                <h3 style="margin-top: 25px; border-color: var(--text-gold);">💵 تحصيل نقدية فقط (بدون مبيعات)</h3>
+                <form id="onlyCollectForm">
+                    <div class="form-group">
+                        <label>بيان التحصيل (لأوردر سابق / شهر فات)</label>
+                        <input type="text" id="collectNote" class="form-control" placeholder="مثال: باقي حساب مشروع بنك مصر لشهر فات" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ المستلم كاش (جنيه)</label>
+                        <input type="number" id="collectAmount" class="form-control" min="1" required>
+                    </div>
+                    <button type="submit" class="btn-submit" style="background: var(--text-gold); color: #000;">تسجيل الكاش المستلم في الخزنة 💰</button>
+                </form>
+            </div>
+
+            <div class="orders-section">
+                <div class="stats-bar">
+                    <div class="stat-box">
+                        <h4>تارجت الشهر الحالي</h4>
+                        <p id="statsMonthlyTarget">0 ج</p>
+                    </div>
+                    <div class="stat-box" style="color: var(--color-danger);">
+                        <h4>المتبقي للوصول للتارجت</h4>
+                        <p id="statsRemainingToTarget">0 ج</p>
+                    </div>
+                    <div class="stat-box" style="color: var(--color-warning);">
+                        <h4>مبيعات لم تحصّل بعد</h4>
+                        <p id="statsUncollectedSales">0 ج</p>
+                    </div>
+                </div>
+
+                <div class="archive-card">
+                    <h3 style="margin-bottom: 15px; color: var(--text-muted); font-size:14px;" id="tableTitleWithMonth">سجل العمليات التفصيلي لمبيعات الشهر</h3>
+                    <table class="archive-table">
+                        <thead>
+                            <tr>
+                                <th>البيان / العميل</th>
+                                <th>نوع العملية</th>
+                                <th>قيمة البيع</th>
+                                <th>المبلغ المحصل</th>
+                                <th>الغير محصل</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="inspectModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 id="modalTitle">كشف حساب جدول أيام الأوردر</h3>
+            <button class="btn-close-modal" onclick="closeInspectModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#startDate", { dateFormat: "Y-m-d", allowInput: false });
+
+    const holidayDatabase2026 = {
+        "01-07": "عيد الميلاد", "01-25": "ثورة 25 يناير", "04-25": "تحرير سيناء",
+        "04-26": "عيد العمال البديل", "05-01": "عيد العمال", "06-30": "ثورة 30 يونيو",
+        "07-23": "ثورة 23 يوليو", "10-06": "قوات مسلحة",
+        "05-25": "وقفة الأضحى", "05-26": "أول الأضحى", "05-27": "ثاني الأضحى",
+        "05-28": "ثالث الأضحى", "05-29": "رابع الأضحى", "05-30": "إجازة الوزراء",
+        "05-31": "إجازة الوزراء", "06-01": "إجازة الوزراء"
+    };
+
+    function getHolidayReason(date) {
+        const mmDd = Array.from([date.getMonth() + 1, date.getDate()]).map(num => String(num).padStart(2, '0')).join('-');
+        return holidayDatabase2026[mmDd] || null;
+    }
+
+    function formatEnglishDateStr(dateStr) {
+        if(!dateStr) return '';
+        const parts = dateStr.split('-');
+        return parts.length === 3 ? `${parts[2]} / ${parts[1]} / ${parts[0]}` : dateStr;
+    }
+
+    function calculateDeliveryDate(startDateStr, duration) {
+        let currentDate = new Date(startDateStr); let addedDays = 0;
+        while (addedDays < duration) {
+            currentDate.setDate(currentDate.getDate() + 1);
+            if (currentDate.getDay() !== 5 && !getHolidayReason(currentDate)) { addedDays++; }
+        }
+        return currentDate.toISOString().split('T')[0];
+    }
+
+    function calculateWorkingDaysPassed(startDateStr, closeDateStr = null) {
+        const start = new Date(startDateStr); 
+        const today = closeDateStr ? new Date(closeDateStr) : new Date(); 
+        today.setHours(0,0,0,0);
+        if (today < start) return 0;
+        let passedDays = 0; let tempDate = new Date(start);
+        while (tempDate <= today) {
+            if (tempDate.getDay() !== 5 && !getHolidayReason(tempDate)) { passedDays++; }
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+        return passedDays;
+    }
+
+    function calculateWorkingDaysRemaining(deliveryDateStr) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const target = new Date(deliveryDateStr); target.setHours(0,0,0,0);
+        if (today > target) {
+            let delayedDays = 0; let tempDate = new Date(target);
+            while(tempDate < today) {
+                tempDate.setDate(tempDate.getDate() + 1);
+                if (tempDate.getDay() !== 5 && !getHolidayReason(tempDate)) { delayedDays++; }
+            }
+            return -delayedDays;
+        }
+        let remainingDays = 0; let tempDate = new Date(today);
+        while (tempDate < target) {
+            tempDate.setDate(tempDate.getDate() + 1);
+            if (tempDate.getDay() !== 5 && !getHolidayReason(tempDate)) { remainingDays++; }
+        }
+        return remainingDays;
+    }
+
+    let activeOrders = JSON.parse(localStorage.getItem('officeTownActiveOrders_v18')) || [];
+    let archivedOrders = JSON.parse(localStorage.getItem('officeTownArchivedOrders_v18')) || [];
+    let monthlyTarget = parseFloat(localStorage.getItem('officeTownMonthlyTarget_v18')) || 900000;
+    let salesTransactions = JSON.parse(localStorage.getItem('officeTownSalesTransactions_v18')) || [];
+    let lastTrackedMonth = localStorage.getItem('officeTownLastTrackedMonth_v18') || "";
+    let closedMonthsArchive = JSON.parse(localStorage.getItem('officeTownClosedMonthsArchive_v18')) || [];
+
+    function executeArchiveSequence(customMonthName = null) {
+        let totalSales = 0; let totalCollected = 0;
+        salesTransactions.forEach(t => { totalSales += t.amount; totalCollected += t.collected; });
+        let targetPercent = monthlyTarget > 0 ? Math.round((totalSales / monthlyTarget) * 100) : 0;
+        
+        let commSales = 0; let commCollected = 0;
+        if (targetPercent >= 30) {
+            commSales = Math.round((totalSales / monthlyTarget) * totalSales / 100);
+            commCollected = Math.round((totalCollected / monthlyTarget) * totalCollected / 100);
+        }
+
+        let archiveMonthName = customMonthName;
+        if (!archiveMonthName && lastTrackedMonth) {
+            const parts = lastTrackedMonth.split('-');
+            const oldDateObj = new Date(parts[0], parseInt(parts[1]) - 1, 1);
+            archiveMonthName = oldDateObj.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+        } else if (!archiveMonthName) {
+            archiveMonthName = new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+        }
+
+        const closedMonthData = {
+            monthName: archiveMonthName,
+            target: monthlyTarget,
+            sales: totalSales,
+            percent: targetPercent,
+            collected: totalCollected,
+            commSales: commSales,
+            commCollected: commCollected
+        };
+
+        closedMonthsArchive.push(closedMonthData);
+        salesTransactions = [];
+        monthlyTarget = 0; 
+        
+        const dateObj = new Date();
+        lastTrackedMonth = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+        localStorage.setItem('officeTownSalesTransactions_v18', JSON.stringify(salesTransactions));
+        localStorage.setItem('officeTownMonthlyTarget_v18', monthlyTarget);
+        localStorage.setItem('officeTownLastTrackedMonth_v18', lastTrackedMonth);
+        localStorage.setItem('officeTownClosedMonthsArchive_v18', JSON.stringify(closedMonthsArchive));
+    }
+
+    function forceCloseAndArchiveMonth() {
+        let currentMonthName = new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+        if(confirm(`⚠️ هل تريد بالتأكيد إغلاق الشهر الحالي وترحيل كافة الأرقام إلى الأرشيف الآن؟`)) {
+            executeArchiveSequence(currentMonthName);
+            saveAndRender();
+            alert('🎉 تم ترحيل أرقام الشهر للأرشيف وتصفير اللوحة بالكامل للشهر الجديد!');
+        }
+    }
+
+    function checkForMonthRollover() {
+        const dateObj = new Date();
+        const currentMonthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+        if (!lastTrackedMonth) {
+            localStorage.setItem('officeTownLastTrackedMonth_v18', currentMonthKey);
+            return;
+        }
+        if (lastTrackedMonth !== currentMonthKey) {
+            executeArchiveSequence();
+            const currentMonthNameStr = dateObj.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+            alert(`🎉 انتهى شهر العمل السابق وتم إغلاقه تلقائياً!\nتم ترحيل العمولات والمبيعات إلى "سجل الأرشيف الشهري" وتصفير اللوحة لبدء شهر جديد (${currentMonthNameStr}).`);
+        }
+    }
+
+    function printSingleOrder(id) {
+        const order = activeOrders.find(o => o.id === id);
+        if(!order) return;
+
+        const printArea = document.getElementById('print-receipt-area');
+        const printDate = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        printArea.innerHTML = `
+            <div class="print-header">
+                <h1>OFFICE TOWN</h1>
+                <h2>بون تشغيل وأمر إنتاج فني داخلي للمصنع</h2>
+                <p>تاريخ طباعة البون: ${printDate}</p>
+            </div>
+            <div class="print-body">
+                <div class="print-bulk-item" style="border:none !important;">
+                    <div><strong>📌 اسم أمر الإنتاج:</strong> ${order.clientName}</div>
+                    <div><strong>📞 رقم هاتف العميل:</strong> ${order.clientPhone || 'غير مسجل'}</div>
+                    <div><strong>📥 تاريخ دخول المصنع:</strong> ${formatEnglishDateStr(order.startDate)}</div>
+                    <div><strong>📦 تاريخ التسليم النهائي:</strong> ${formatEnglishDateStr(order.deliveryDate)}</div>
+                    <div><strong>⏱️ مدة العمل المقررة:</strong> ${order.durationDays} أيام عمل</div>
+                </div>
+            </div>
+            <div class="print-footer">
+                <p>قسم الإشراف الفني والجودة - أوفيس تاون للأثاث المكتبي والمشاريع</p>
+            </div>
+        `;
+
+        window.print();
+        printArea.innerHTML = '';
+    }
+
+    function printAllActiveOrders() {
+        if(activeOrders.length === 0) {
+            alert('لا توجد أوامر تشغيل جارية لطباعتها حالياً!');
+            return;
+        }
+
+        const printArea = document.getElementById('print-receipt-area');
+        const printDate = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let ordersHTML = '';
+        activeOrders.forEach((order, idx) => {
+            ordersHTML += `
+                <div class="print-bulk-item">
+                    <h3>تسلسل (#${idx + 1}) - أمر تشغيل: ${order.clientName}</h3>
+                    <div><strong>📞 رقم الهاتف:</strong> ${order.clientPhone || 'غير مسجل'}</div>
+                    <div><strong>📥 دخول المصنع:</strong> ${formatEnglishDateStr(order.startDate)}</div>
+                    <div><strong>📦 خروج وتسليم:</strong> ${formatEnglishDateStr(order.deliveryDate)}</div>
+                    <div><strong>⏱️ مدة التصنيع:</strong> ${order.durationDays} أيام عمل</div>
+                    <div><strong>💰 إجمالي الحساب:</strong> ${(order.totalPrice + (order.shippingPrice || 0)).toLocaleString('en-US')} ج</div>
+                </div>
+            `;
+        });
+
+        printArea.innerHTML = `
+            <div class="print-header">
+                <h1>OFFICE TOWN</h1>
+                <h2>شيت أوامر الإنتاج والتشغيل الجارية بالمصنع بالكامل</h2>
+                <p>تاريخ الطباعة المجمع: ${printDate} | إجمالي الأوامر: ${activeOrders.length}</p>
+            </div>
+            <div class="print-body">
+                ${ordersHTML}
+            </div>
+            <div class="print-footer">
+                <p>إدارة مراقبة الجودة والإنتاج - أوفيس تاون للأثاث والمشاريع</p>
+            </div>
+        `;
+
+        window.print();
+        printArea.innerHTML = '';
+    }
+
+    function editClientPhone(id) {
+        const order = activeOrders.find(o => o.id === id);
+        if(!order) return;
+        const currentPhone = order.clientPhone && order.clientPhone !== 'غير مسجل' ? order.clientPhone : '';
+        const newPhone = prompt(`تعديل رقم العميل لأمر الإنتاج (${order.clientName}):`, currentPhone);
+        if(newPhone !== null) {
+            order.clientPhone = newPhone.trim() === '' ? 'غير مسجل' : newPhone.trim();
+            saveAndRender();
+        }
+    }
+
+    function exportSystemData() {
+        const fullBackup = { version: "v18.8-white-print", exportTime: new Date().toISOString(), activeOrders, archivedOrders, monthlyTarget, salesTransactions, lastTrackedMonth, closedMonthsArchive };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
+        const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", `OfficeTown_Data_V18_8.json`);
+        document.body.appendChild(anchor); anchor.click(); anchor.remove();
+    }
+
+    function importSystemData(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const parsedData = JSON.parse(e.target.result);
+                if (parsedData.activeOrders && parsedData.archivedOrders) {
+                    if (confirm(`تأكيد استبدال الداتا؟`)) {
+                        activeOrders = parsedData.activeOrders; archivedOrders = parsedData.archivedOrders;
+                        monthlyTarget = parsedData.monthlyTarget || 0; salesTransactions = parsedData.salesTransactions || [];
+                        lastTrackedMonth = parsedData.lastTrackedMonth || ""; closedMonthsArchive = parsedData.closedMonthsArchive || [];
+                        saveAndRender(); alert('🚀 تم الاستيراد بنجاح!');
+                    }
+                } else { alert('❌ ملف غير متوافق.'); }
+            } catch (err) { alert('❌ فشل القراءة.'); }
+        }; reader.readAsText(file); event.target.value = '';
+    }
+
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); btnElement.classList.add('active');
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const clientName = document.getElementById('clientName').value;
+        const clientPhone = document.getElementById('clientPhone').value;
+        const startDate = document.getElementById('startDate').value;
+        const durationDays = parseInt(document.getElementById('durationDays').value);
+        const totalPrice = parseFloat(document.getElementById('totalPrice').value);
+        const shippingPrice = document.getElementById('shippingPrice').value === "" ? 0 : parseFloat(document.getElementById('shippingPrice').value);
+        const paidPrice = document.getElementById('paidPrice').value === "" ? 0 : parseFloat(document.getElementById('paidPrice').value);
+        const deliveryDate = calculateDeliveryDate(startDate, durationDays);
+        activeOrders.push({ id: Date.now(), clientName, clientPhone, startDate, durationDays, totalPrice, shippingPrice, paidPrice, deliveryDate });
+        saveAndRender(); this.reset();
+    });
+
+    function addPayment(id) {
+        const amtInput = document.getElementById(`pay-input-${id}`); const amount = parseFloat(amtInput.value);
+        if (isNaN(amount) || amount <= 0) return;
+        const order = activeOrders.find(o => o.id === id);
+        if (order) {
+            const overallTotal = order.totalPrice + order.shippingPrice; const remaining = overallTotal - order.paidPrice;
+            if (amount > remaining) { alert(`المبلغ المكتب يتخطى المتبقي الفعلي وهو (${remaining} ج)`); return; }
+            order.paidPrice += amount; saveAndRender();
+        }
+    }
+
+    function completeOrder(id) {
+        const index = activeOrders.findIndex(o => o.id === id);
+        if (index > -1) {
+            const order = activeOrders[index]; const overallTotal = order.totalPrice + order.shippingPrice;
+            const remaining = overallTotal - order.paidPrice;
+            if (remaining > 0) {
+                if (!confirm(`الحساب متبقي عليه ${remaining} ج. تصفية الحساب بالكامل للإغلاق؟`)) return;
+                order.paidPrice = overallTotal;
+            }
+            order.closeDate = new Date().toISOString().split('T')[0];
+            archivedOrders.push(order); activeOrders.splice(index, 1); saveAndRender();
+        }
+    }
+
+    function deleteActive(id) { if(confirm('حذف هذا الأوردر نهائياً؟')) { activeOrders = activeOrders.filter(o => o.id !== id); saveAndRender(); } }
+    function deleteArchive(id) { if(confirm('حذف الأوردر المؤرشف نهائياً؟')) { archivedOrders = archivedOrders.filter(o => o.id !== id); saveAndRender(); } }
+
+    function inspectOrderDays(startDateStr, deliveryDateStr, clientName) {
+        document.getElementById('modalTitle').innerText = `تفاصيل الأيام لأوردر: ${clientName}`;
+        const body = document.getElementById('modalBody'); body.innerHTML = '';
+        let temp = new Date(startDateStr); let end = new Date(deliveryDateStr); let workDayCounter = 0;
+        while (temp <= end) {
+            const isFriday = (temp.getDay() === 5); const holiday = getHolidayReason(temp);
+            const dayName = temp.toLocaleDateString('ar-EG', { weekday: 'long' });
+            const dateDisplay = `${String(temp.getDate()).padStart(2, '0')} / ${String(temp.getMonth() + 1).padStart(2, '0')} / ${temp.getFullYear()}`;
+            const row = document.createElement('div');
+            if (isFriday || holiday) {
+                row.className = "inspect-day-row day-off";
+                row.innerHTML = `<span>📅 ${dayName} (${dateDisplay})</span> <strong>🛑 إجازة: ${isFriday ? "جمعة" : holiday}</strong>`;
+            } else {
+                workDayCounter++; row.className = "inspect-day-row day-work";
+                row.innerHTML = `<span>📅 ${dayName} (${dateDisplay})</span> <strong>🟢 يوم عمل (#${workDayCounter})</strong>`;
+            }
+            body.appendChild(row); temp.setDate(temp.getDate() + 1);
+        }
+        document.getElementById('inspectModal').style.display = 'flex';
+    }
+
+    function closeInspectModal() { document.getElementById('inspectModal').style.display = 'none'; }
+
+    function updateMonthlyTarget() {
+        const val = parseFloat(document.getElementById('monthlyTargetInput').value);
+        if (isNaN(val) || val < 0) return;
+        monthlyTarget = val; saveAndRender();
+        alert('🎯 تم تعديل تارجت المبيعات الشهري بنجاح!');
+    }
+
+    document.getElementById('salesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const note = document.getElementById('saleNote').value;
+        const amount = parseFloat(document.getElementById('saleAmount').value);
+        const collected = parseFloat(document.getElementById('saleCollected').value);
+        if (collected > amount) { alert('المحصل لا يمكن أن يتخطى إجمالي قيمة البيع!'); return; }
+        salesTransactions.push({ id: Date.now(), type: 'sale', note, amount, collected, date: new Date().toISOString().split('T')[0] });
+        saveAndRender(); this.reset();
+    });
+
+    document.getElementById('onlyCollectForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const note = document.getElementById('collectNote').value;
+        const collected = parseFloat(document.getElementById('collectAmount').value);
+        salesTransactions.push({ id: Date.now(), type: 'only_collect', note, amount: 0, collected: collected, date: new Date().toISOString().split('T')[0] });
+        saveAndRender(); this.reset();
+    });
+
+    function deleteSaleTransaction(id) {
+        if(confirm('هل تريد حذف هذه العملية؟')) { salesTransactions = salesTransactions.filter(t => t.id !== id); saveAndRender(); }
+    }
+
+    function renderSalesDashboard() {
+        const currentMonthName = new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+        document.getElementById('salesTitleWithMonth').innerText = `🎯 إنجاز تارجت المبيعات لشهر (${currentMonthName})`;
+        document.getElementById('collectedTitleWithMonth').innerText = `💵 التحصيل النقدي الفعلي لشهر (${currentMonthName})`;
+        document.getElementById('tableTitleWithMonth').innerText = `سجل العمليات التفصيلي لمبيعات وتحصيلات شهر (${currentMonthName})`;
+
+        document.getElementById('monthlyTargetInput').value = monthlyTarget;
+        document.getElementById('statsMonthlyTarget').innerText = monthlyTarget.toLocaleString('en-US') + ' ج';
+
+        let totalSales = 0; let totalCollected = 0;
+        salesTransactions.forEach(t => { totalSales += t.amount; totalCollected += t.collected; });
+        let uncollected = totalSales - salesTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.collected, 0);
+        if(uncollected < 0) uncollected = 0;
+        let remainingToTarget = monthlyTarget - totalSales; if(remainingToTarget < 0) remainingToTarget = 0;
+
+        let targetPercent = monthlyTarget > 0 ? Math.round((totalSales / monthlyTarget) * 100) : 0;
+        let collectedPercent = totalSales > 0 ? Math.round((totalCollected / totalSales) * 100) : (totalCollected > 0 ? 100 : 0);
+
+        const circleS = document.getElementById('circleSales');
+        circleS.style.setProperty('--percent', Math.min(targetPercent, 100));
+        document.getElementById('circleSalesText').innerHTML = `${targetPercent}%<span>إنجاز</span>`;
+        document.getElementById('txtTotalSales').innerText = totalSales.toLocaleString('en-US') + ' ج';
+        document.getElementById('subSalesLbl').innerText = `من أصل هدف بيع شهري: ${monthlyTarget.toLocaleString('en-US')} ج`;
+
+        const circleC = document.getElementById('circleCollected');
+        circleC.style.setProperty('--percent', Math.min(collectedPercent, 100));
+        document.getElementById('circleCollectedText').innerHTML = `${collectedPercent}%<span>تحصيل</span>`;
+        document.getElementById('txtTotalCollected').innerText = totalCollected.toLocaleString('en-US') + ' ج';
+
+        document.getElementById('statsRemainingToTarget').innerText = remainingToTarget.toLocaleString('en-US') + ' ج';
+        document.getElementById('statsUncollectedSales').innerText = uncollected.toLocaleString('en-US') + ' ج';
+
+        const salesCard = document.getElementById('commSalesCard');
+        const collectedCard = document.getElementById('commCollectedCard');
+        const salesBadge = document.getElementById('badgeCommSales');
+        const collectedBadge = document.getElementById('badgeCommCollected');
+
+        if (monthlyTarget > 0 && targetPercent >= 30) {
+            let commSales = Math.round((totalSales / monthlyTarget) * totalSales / 100);
+            let commCollected = Math.round((totalCollected / monthlyTarget) * totalCollected / 100);
+            salesCard.className = "commission-card unlocked"; collectedCard.className = "commission-card unlocked";
+            salesBadge.className = "comm-status-badge cs-unlocked"; salesBadge.innerText = `🟢 مستحقة وجاهزة للتسييل`;
+            collectedBadge.className = "comm-status-badge cs-unlocked"; collectedBadge.innerText = `🟢 كاش مستحق بالخزنة`;
+            document.getElementById('txtCommSales').innerText = commSales.toLocaleString('en-US') + ' ج';
+            document.getElementById('txtCommCollected').innerText = commCollected.toLocaleString('en-US') + ' ج';
+        } else {
+            salesCard.className = "commission-card locked"; collectedCard.className = "commission-card locked";
+            salesBadge.className = "comm-status-badge cs-locked";
+            let missingSalesFor30 = monthlyTarget > 0 ? Math.round((monthlyTarget * 0.3) - totalSales) : 0;
+            salesBadge.innerText = monthlyTarget > 0 ? `⚠️ متبقي ${missingSalesFor30.toLocaleString('en-US')} ج لتفعيل العمولة` : `🔒 يرجى تحديد هدف مبيعات أولاً`;
+            collectedBadge.className = "comm-status-badge cs-locked"; collectedBadge.innerText = `🔒 مقيد بشرط الـ 30%`;
+            document.getElementById('txtCommSales').innerText = '0 ج'; document.getElementById('txtCommCollected').innerText = '0 ج';
+        }
+
+        const tbody = document.getElementById('salesTableBody'); tbody.innerHTML = '';
+        if(salesTransactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">سجل مبيعات وتحصيلات الشهر فارغ.</td></tr>'; return;
+        }
+        salesTransactions.forEach(t => {
+            const tr = document.createElement('tr'); const isOnlyCollect = (t.type === 'only_collect');
+            const uncoll = isOnlyCollect ? 0 : (t.amount - t.collected);
+            const typeBadge = isOnlyCollect ? `<span class="badge-only-collect">💵 تحصيل نقدية فقط</span>` : `<span class="badge-normal-sale">💼 عملية بيع جديدة</span>`;
+            tr.innerHTML = `
+                <td style="font-weight:700;">${t.note}</td>
+                <td>${typeBadge}</td>
+                <td style="color:var(--text-gold); font-weight:700;">${isOnlyCollect ? '-' : t.amount.toLocaleString('en-US') + ' ج'}</td>
+                <td style="color:var(--color-success); font-weight:700;">${t.collected.toLocaleString('en-US')} ج</td>
+                <td style="color:${uncoll > 0 ? 'var(--color-danger)' : 'var(--text-muted)'}; font-weight:700;">${isOnlyCollect ? '-' : uncoll.toLocaleString('en-US') + ' ج'}</td>
+                <td><button class="btn-trash" onclick="deleteSaleTransaction(${t.id})">🗑️ حذف</button></td>
+            `; tbody.appendChild(tr);
+        });
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('officeTownActiveOrders_v18', JSON.stringify(activeOrders));
+        localStorage.setItem('officeTownArchivedOrders_v18', JSON.stringify(archivedOrders));
+        localStorage.setItem('officeTownMonthlyTarget_v18', monthlyTarget);
+        localStorage.setItem('officeTownSalesTransactions_v18', JSON.stringify(salesTransactions));
+        localStorage.setItem('officeTownClosedMonthsArchive_v18', JSON.stringify(closedMonthsArchive));
+        renderActive(); renderArchive(); renderSalesDashboard(); renderMonthlyArchive();
+    }
+
+    function renderActive() {
+        const list = document.getElementById('ordersList'); list.innerHTML = ''; let grandRemaining = 0; let delayCount = 0;
+        if(activeOrders.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-muted); font-size:13px;">لا توجد أوامر تصنيع جارية.</p>';
+            updateStats(0, 0, 0); return;
+        }
+
+        activeOrders.forEach(order => {
+            if(!order.clientPhone) { order.clientPhone = 'غير مسجل'; }
+
+            const overallTotal = order.totalPrice + (order.shippingPrice || 0); const rem = overallTotal - order.paidPrice; grandRemaining += rem;
+            const passed = calculateWorkingDaysPassed(order.startDate); const remainingDays = calculateWorkingDaysRemaining(order.deliveryDate);
+
+            let cardClass = 'status-ontime'; let badgeHTML = '<span class="mega-badge mb-success">✓ إنتاج مستقر</span>';
+            if (remainingDays < 0) { cardClass = 'status-delayed'; badgeHTML = `<span class="mega-badge mb-danger">⚠️ متأخر ${Math.abs(remainingDays)} يوم</span>`; delayCount++; } 
+            else if (remainingDays <= 2) { cardClass = 'status-warning'; badgeHTML = '<span class="mega-badge mb-warning">⚡ اقترب ميعاد الخروج</span>'; }
+
+            let shippingStatusHTML = '';
+            if((order.shippingPrice || 0) > 0) {
+                if(order.paidPrice >= order.totalPrice) {
+                    const coveredShipping = order.paidPrice - order.totalPrice;
+                    shippingStatusHTML = coveredShipping >= order.shippingPrice ? `<span style="color:var(--color-success); font-size:11px;">(خالص)</span>` : `<span style="color:var(--text-gold); font-size:11px;">(متبقي شحن ${order.shippingPrice - coveredShipping} ج)</span>`;
+                } else { shippingStatusHTML = `<span style="color:var(--color-danger); font-size:11px;">(لم يسدد الشحن)</span>`; }
+            } else { shippingStatusHTML = `<span style="color:var(--text-muted); font-size:11px;">(بدون نقل)</span>`; }
+
+            const card = document.createElement('div'); card.className = `order-row-card ${cardClass}`;
+            card.innerHTML = `
+                <div class="card-info-side">
+                    <span class="client-name" title="${order.clientName}">${order.clientName}</span>
+                    <span class="client-phone">
+                        📞 ${order.clientPhone} 
+                        <button class="btn-edit-phone" onclick="editClientPhone(${order.id})">✏️ تعديل الرقم</button>
+                    </span>
+                    <div style="margin-top: 2px;">${badgeHTML}</div>
+                    
+                    <button class="btn-action" style="background: rgba(255,255,255,0.1); color: var(--text-gold); border: 1px solid rgba(251,191,36,0.3); margin-top:8px;" onclick="printSingleOrder(${order.id})">
+                        🖨️ طباعة البون الفني
+                    </button>
+                    
+                    <button class="btn-trash" onclick="deleteActive(${order.id})">🗑️ إلغاء الأمر الفني</button>
+                </div>
+                
+                <div class="card-timeline-side">
+                    <div class="timeline-visual-row">
+                        <div class="timeline-node start-node">
+                            <span class="node-lbl">📥 تاريخ الدخول</span>
+                            <span class="node-date">${formatEnglishDateStr(order.startDate)}</span>
+                        </div>
+                        <div class="timeline-connector-line"></div>
+                        <div class="timeline-node end-node">
+                            <span class="node-lbl">📦 تاريخ التسليم النهائي</span>
+                            <span class="node-date" style="color: var(--text-gold);">${formatEnglishDateStr(order.deliveryDate)}</span>
+                        </div>
+                    </div>
+                    <div class="timeline-days-meta">
+                        <div class="meta-days-box">
+                            <p>أيام منقضية عمل: <span>${passed} يوم</span></p>
+                            <p>أيام متبقية للتسليم: <span>${remainingDays >= 0 ? remainingDays : 0} يوم</span></p>
+                        </div>
+                        <button class="btn-inspect-days-icon" onclick="inspectOrderDays('${order.startDate}', '${order.deliveryDate}', '${order.clientName.replace(/'/g, "\\'")}')">📅 كشف تفصيلي بالأيام</button>
+                    </div>
+                </div>
+
+                <div class="card-finance-side">
+                    <div class="fin-text">
+                        <p>قيمة الأثاث: <span>${order.totalPrice.toLocaleString('en-US')} ج</span></p>
+                        <p>النقل والشحن: <span>${order.shippingPrice.toLocaleString('en-US')} ج</span> ${shippingStatusHTML}</p>
+                        <p style="color:var(--color-success)">المدفوع كاش: <span>${order.paidPrice.toLocaleString('en-US')} ج</span></p>
+                        <p style="color:var(--text-gold); border-top: 1px dashed rgba(255,255,255,0.1); padding-top:4px; margin-top:4px; font-weight:800;">المتبقي: <span>${rem.toLocaleString('en-US')} ج</span></p>
+                    </div>
+                    <div class="fin-actions">
+                        <div class="pay-wrapper">
+                            <input type="number" id="pay-input-${order.id}" placeholder="ج">
+                            <button class="btn-action btn-pay" onclick="addPayment(${order.id})">تحصيل</button>
+                        </div>
+                        <button class="btn-action btn-close" onclick="completeOrder(${order.id})">✅ تقفيل للأرشيف</button>
+                    </div>
+                </div>
+            `; list.appendChild(card);
+        });
+        updateStats(activeOrders.length, delayCount, grandRemaining);
+    }
+
+    function updateStats(tc, dc, rm) {
+        document.getElementById('totalOrdersCount').innerText = tc;
+        document.getElementById('delayedOrdersCount').innerText = dc;
+        document.getElementById('totalRemainingMoney').innerText = rm.toLocaleString('en-US') + ' ج';
+    }
+
+    function renderArchive() {
+        const body = document.getElementById('archiveList'); body.innerHTML = '';
+        if(archivedOrders.length === 0) {
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:20px;">الأرشيف فارغ.</td></tr>'; return;
+        }
+        archivedOrders.forEach(order => {
+            if(!order.clientPhone) { order.clientPhone = 'غير مسجل'; }
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight:700;">${order.clientName}</td>
+                <td style="color: var(--text-muted); font-size:12px;">${order.clientPhone}</td>
+                <td style="direction: ltr; text-align: right;">${formatEnglishDateStr(order.startDate)}</td>
+                <td style="direction: ltr; text-align: right; color: var(--text-gold); font-weight:700;">${formatEnglishDateStr(order.closeDate)}</td>
+                <td style="color:var(--color-success); font-weight:700;">${order.totalPrice.toLocaleString('en-US')} ج</td>
+                <td style="color:var(--text-muted);">${(order.shippingPrice || 0).toLocaleString('en-US')} ج</td>
+                <td><span class="mega-badge mb-success">✓ مصفى ومغلق</span></td>
+                <td><button class="btn-trash" onclick="deleteArchive(${order.id})">🗑️ حذف</button></td>
+            `; body.appendChild(tr);
+        });
+    }
+
+    function renderMonthlyArchive() {
+        const body = document.getElementById('monthlyArchiveList'); body.innerHTML = '';
+        if(closedMonthsArchive.length === 0) {
+            body.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">لا توجد شهور مؤرشفة حتى الآن.</td></tr>'; return;
+        }
+        closedMonthsArchive.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight:700; color: #fff;">${item.monthName}</td>
+                <td style="color:var(--text-muted);">${item.target.toLocaleString('en-US')} ج</td>
+                <td style="color:var(--text-gold); font-weight:700;">${item.sales.toLocaleString('en-US')} ج</td>
+                <td style="font-weight:700;">${item.percent}%</td>
+                <td style="color:var(--color-success); font-weight:700;">${item.collected.toLocaleString('en-US')} ج</td>
+                <td style="color:#c084fc;">${item.commSales.toLocaleString('en-US')} ج</td>
+                <td style="color:var(--color-success);">${item.commCollected.toLocaleString('en-US')} ج</td>
+            `; body.appendChild(tr);
+        });
+    }
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('live-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('live-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }, 1000);
+
+    checkForMonthRollover();
+    renderActive(); renderArchive(); renderSalesDashboard(); renderMonthlyArchive();
+</script>
+</body>
+</html>
