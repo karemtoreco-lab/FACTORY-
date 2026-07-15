@@ -227,12 +227,40 @@
         .badge-only-collect { background: rgba(245, 158, 11, 0.15); color: var(--text-gold); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
         .badge-normal-sale { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
 
+        /* Game Section Custom CSS */
+        .game-grid-layout { display: flex; gap: 25px; align-items: start; }
+        .game-screen-wrapper {
+            flex-grow: 1; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .game-screen-wrapper h3 { color: #fff; font-size: 20px; font-weight: 900; }
+        #gameCanvas {
+            background: #060913; border: 2px solid var(--color-purple); border-radius: 12px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); display: block;
+        }
+        .game-controls-card {
+            width: 350px; flex-shrink: 0; background: var(--card-bg); padding: 25px; border-radius: 18px;
+            border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .game-controls-card h3 { border-bottom: 2px solid var(--text-gold); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px; font-weight: 900; color: #fff; }
+        .game-stats-row { display: flex; justify-content: space-between; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 8px; font-size: 13px; }
+        .game-stats-row strong { color: var(--text-gold); }
+        .game-btn-play { width: 100%; padding: 12px; font-size: 14px; font-weight: 900; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 15px; transition: all 0.2s; }
+        .game-btn-play.start { background: var(--color-success); color: #fff; }
+        .game-btn-play.restart { background: var(--color-danger); color: #fff; }
+        .game-instructions-box { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; font-size: 12px; line-height: 1.6; }
+        .game-instructions-box ul { padding-right: 18px; margin-top: 5px; color: var(--text-muted); }
+
+        .game-selector-tabs { display: flex; gap: 8px; width: 100%; margin-bottom: 15px; }
+        .game-sel-btn { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted); cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 12px; }
+        .game-sel-btn.active { background: var(--color-purple); color: #fff; border-color: var(--color-purple); }
+
         @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        /* تعديل كود الـ CSS الخاص بالطباعة ليجبر الألوان على الخلفية البيضاء والكتابة السوداء النظيفة */
+        /* تعديل كود الـ CSS الخاص بالطباعة */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; }
-            .container { display: none !important; } /* إخفاء الشاشة الكاملة ومحتوياتها أثناء عملية الطباعة */
+            .container { display: none !important; }
             
             #print-receipt-area, #print-receipt-area * { 
                 visibility: visible !important; 
@@ -258,7 +286,7 @@
                 line-height: 2; 
                 font-size: 16px; 
                 color: #000000 !important;
-                page-break-inside: avoid; /* منع انقسام أمر التشغيل الواحد بين صفحتين */
+                page-break-inside: avoid;
             }
             .print-bulk-item h3 { font-size: 18px; font-weight: 900; margin-bottom: 8px; color: #000000 !important; }
             .print-bulk-item strong { min-width: 140px; display: inline-block; color: #000000 !important; font-weight: 700; }
@@ -269,7 +297,6 @@
 </head>
 <body>
 
-<!-- مساحة الطباعة المنفصلة التلقائية -->
 <div id="print-receipt-area" style="display: none;"></div>
 
 <div class="container">
@@ -298,6 +325,7 @@
         <button class="tab-btn active" onclick="switchTab('tracking-tab', this)">💼 أوامر الإنتاج الجارية بالمصنع</button>
         <button class="tab-btn" onclick="switchTab('archive-tab', this)">📁 أرشيف حسابات ومبيعات المصنع</button>
         <button class="tab-btn" onclick="switchTab('sales-tab', this)">📊 لوحة متابعة التارجت والعمولات والبيع</button>
+        <button class="tab-btn" onclick="switchTab('games-tab', this); initGameCanvas();">🎮 استراحة المصنع (ألعاب)</button>
     </div>
 
     <div id="tracking-tab" class="tab-content active">
@@ -524,12 +552,65 @@
             </div>
         </div>
     </div>
+
+    <!-- قسم ألعاب المصنع الجديد المحدث بالكامل -->
+    <div id="games-tab" class="tab-content">
+        <div class="game-grid-layout">
+            <div class="game-controls-card">
+                <h3>🎮 لوحة اختيار الألعاب</h3>
+                
+                <div class="game-selector-tabs">
+                    <button id="btnSelectSnake" class="game-sel-btn active" onclick="switchGameMode('snake')">🚛 شاحنة الأثاث</button>
+                    <button id="btnSelectCatcher" class="game-sel-btn" onclick="switchGameMode('catcher')">💺 تجميع الكراسي</button>
+                </div>
+
+                <h3 id="gamePanelTitle">لوحة التحكم باللعبة</h3>
+                <div class="game-stats-row">
+                    <span>نقاط الأرباح الافتراضية:</span>
+                    <strong id="gameCurrentScore">0 ج</strong>
+                </div>
+                <div class="game-stats-row">
+                    <span>أعلى أرباح مسجلة:</span>
+                    <strong id="gameHighScoreVal">0 ج</strong>
+                </div>
+                <div class="game-stats-row" id="gameLivesRow" style="display: none; color: var(--color-danger);">
+                    <span>المحاولات المتبقية:</span>
+                    <strong id="gameLivesVal">❤❤❤</strong>
+                </div>
+                <button id="startGameBtn" class="game-btn-play start" onclick="toggleActiveGame()">ابدأ اللعب الآن 🚀</button>
+                
+                <div class="game-instructions-box">
+                    <strong id="instructionsTitle">كيفية اللعب (شاحنة الأثاث):</strong>
+                    <ul id="instructionsList">
+                        <li>استخدم <b>الأسهم</b> لتوجيه شاحنة المصنع لتجميع الأثاث.</li>
+                        <li>تجنب الاصطدام بالحوائط أو بجسم الشاحنة الطويل خلفك.</li>
+                        <li><b>على الموبايل؟</b> استخدم أزرار اللمس بالأسفل لتوجيه اللعبة.</li>
+                    </ul>
+                </div>
+
+                <!-- أزرار تحكم الموبايل العامة للعبتين -->
+                <div id="gameMobileControls" style="display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: 20px;">
+                    <button id="btnControlUp" class="btn-action" style="width:50px; height:45px; background:var(--color-purple); color:#fff; font-weight:900;" onclick="sendGameDirection('UP')">⬆️</button>
+                    <div style="display:flex; gap:30px;">
+                        <button class="btn-action" style="width:50px; height:45px; background:var(--color-purple); color:#fff; font-weight:900;" onclick="sendGameDirection('LEFT')">⬅️</button>
+                        <button class="btn-action" style="width:50px; height:45px; background:var(--color-purple); color:#fff; font-weight:900;" onclick="sendGameDirection('RIGHT')">➡️</button>
+                    </div>
+                    <button id="btnControlDown" class="btn-action" style="width:50px; height:45px; background:var(--color-purple); color:#fff; font-weight:900;" onclick="sendGameDirection('DOWN')">⬇️</button>
+                </div>
+            </div>
+
+            <div class="game-screen-wrapper">
+                <h3 id="canvasGameTitle">شاحنة تجميع قطع أثاث Office Town 🚛</h3>
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="inspectModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3 id="modalTitle">كشف حساب جدول أيام الأوردر</h3>
+            <h3 id="modalTitle">كشف حساب جدول أيام الأورجان</h3>
             <button class="btn-close-modal" onclick="closeInspectModal()">✕</button>
         </div>
         <div class="modal-body" id="modalBody"></div>
@@ -787,6 +868,9 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active'); btnElement.classList.add('active');
+        if (tabId !== 'games-tab') {
+            stopActiveGame();
+        }
     }
 
     document.getElementById('orderForm').addEventListener('submit', function(e) {
@@ -1092,6 +1176,417 @@
                 <td style="color:var(--color-success);">${item.commCollected.toLocaleString('en-US')} ج</td>
             `; body.appendChild(tr);
         });
+    }
+
+    // ==========================================
+    // كود الألعاب المشترك والمطور والجديد تماماً 🎮
+    // ==========================================
+    let canvas, ctx;
+    let isGameRunning = false;
+    let activeGameMode = 'snake'; // 'snake' or 'catcher'
+
+    // متغيرات عامة ومقاسات
+    let gameScore = 0;
+    let snakeHighScore = parseInt(localStorage.getItem('officeTownGameHighScore')) || 0;
+    let catcherHighScore = parseInt(localStorage.getItem('officeTownCatcherHighScore')) || 0;
+    let gameInterval = null;
+
+    // عناصر قطع الأثاث وقيمها
+    const furnitureTypes = [
+        { type: 'كرسي هيدروليك 💺', price: 15000, color: '#fbbf24', char: '💺' },
+        { type: 'مكتب مدير فاخر 👔', price: 65000, color: '#8b5cf6', char: '👔' },
+        { type: 'كونتر ريسبشن كبي 🛎️', price: 120000, color: '#10b981', char: '🛎️' },
+        { type: 'كنبة جلد تركي 🛋️', price: 85000, color: '#f59e0b', char: '🛋️' }
+    ];
+
+    // [1] متغيرات لعبة الدودة (SNAKE GAME)
+    let snake = [];
+    let snakeGridSize = 20;
+    let dx = snakeGridSize, dy = 0;
+    let furnitureItem = { x: 0, y: 0, type: 'chair', price: 10000, color: '#fbbf24' };
+
+    // [2] متغيرات اللعبة الجديدة: صائد الكراسي (CHAIRS CATCHER GAME)
+    let catcherBasket = { x: 160, width: 80, height: 15, color: 'var(--color-purple)' };
+    let catcherItems = [];
+    let catcherLives = 3;
+    let catcherSpeedMultiplier = 1;
+
+    function initGameCanvas() {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        updateScoresUI();
+        drawPlaceholder();
+        
+        // منع تحرك الصفحة بالأسهم
+        window.addEventListener("keydown", function(e) {
+            if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+                e.preventDefault();
+            }
+        }, false);
+    }
+
+    function switchGameMode(mode) {
+        if(isGameRunning) {
+            if(!confirm("هل تريد إنهاء اللعبة الحالية والتبديل؟")) return;
+            stopActiveGame();
+        }
+        
+        activeGameMode = mode;
+        document.getElementById('btnSelectSnake').classList.toggle('active', mode === 'snake');
+        document.getElementById('btnSelectCatcher').classList.toggle('active', mode === 'catcher');
+
+        const livesRow = document.getElementById('gameLivesRow');
+        const mUp = document.getElementById('btnControlUp');
+        const mDown = document.getElementById('btnControlDown');
+        
+        if(mode === 'snake') {
+            document.getElementById('gamePanelTitle').innerText = "لوحة تحكم شاحنة الأثاث 🚛";
+            document.getElementById('canvasGameTitle').innerText = "شاحنة تجميع قطع أثاث Office Town 🚛";
+            document.getElementById('instructionsTitle').innerText = "كيفية اللعب (شاحنة الأثاث):";
+            document.getElementById('instructionsList').innerHTML = `
+                <li>استخدم <b>الأسهم</b> لتوجيه شاحنة المصنع لتجميع الأثاث.</li>
+                <li>تجنب الاصطدام بالحوائط أو بجسم الشاحنة الطويل خلفك.</li>
+                <li><b>على الموبايل؟</b> استخدم أزرار اللمس بالأسفل لتوجيه اللعبة.</li>
+            `;
+            livesRow.style.display = 'none';
+            mUp.style.visibility = 'visible';
+            mDown.style.visibility = 'visible';
+        } else {
+            document.getElementById('gamePanelTitle').innerText = "لوحة تحكم صائد الكراسي 💺";
+            document.getElementById('canvasGameTitle').innerText = "تجميع وحفظ كراسي ومكاتب المعرض 💺";
+            document.getElementById('instructionsTitle').innerText = "كيفية اللعب (صائد الكراسي):";
+            document.getElementById('instructionsList').innerHTML = `
+                <li>استخدم <b>الأسهم يميناً ويساراً</b> لتحريك حاوية التجميع بالأسفل.</li>
+                <li>اجمع القطع المتساقطة لزيادة الأرباح.</li>
+                <li>انتبه! لديك <b>3 أرواح فقط</b>، وسقوط أي قطعة خارج الحاوية يفقدك حياة!</li>
+            `;
+            livesRow.style.display = 'flex';
+            mUp.style.visibility = 'hidden'; // إخفاء فوق وتحت لعدم الحاجة لهما
+            mDown.style.visibility = 'hidden';
+        }
+        
+        updateScoresUI();
+        drawPlaceholder();
+    }
+
+    function updateScoresUI() {
+        if(activeGameMode === 'snake') {
+            document.getElementById('gameCurrentScore').innerText = gameScore.toLocaleString('en-US') + ' ج';
+            document.getElementById('gameHighScoreVal').innerText = snakeHighScore.toLocaleString('en-US') + ' ج';
+        } else {
+            document.getElementById('gameCurrentScore').innerText = gameScore.toLocaleString('en-US') + ' ج';
+            document.getElementById('gameHighScoreVal').innerText = catcherHighScore.toLocaleString('en-US') + ' ج';
+            updateCatcherLivesHearts();
+        }
+    }
+
+    function drawPlaceholder() {
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "16px Cairo";
+        ctx.textAlign = "center";
+        
+        const title = activeGameMode === 'snake' ? "ابدأ رحلة الشحن 🚀" : "ابدأ تجميع الأثاث 💺";
+        ctx.fillText(`اضغط على '${title}' لبدء اللعبة!`, canvas.width / 2, canvas.height / 2);
+    }
+
+    function toggleActiveGame() {
+        if (isGameRunning) {
+            stopActiveGame();
+        } else {
+            startActiveGame();
+        }
+    }
+
+    function startActiveGame() {
+        isGameRunning = true;
+        gameScore = 0;
+        
+        const startBtn = document.getElementById('startGameBtn');
+        startBtn.innerText = "إنهاء وتوقيف اللعبة 🛑";
+        startBtn.className = "game-btn-play restart";
+        
+        document.addEventListener('keydown', handleDirectionKeys);
+
+        if(activeGameMode === 'snake') {
+            // تهيئة لعبة الدودة
+            snake = [
+                { x: 160, y: 200 },
+                { x: 140, y: 200 },
+                { x: 120, y: 200 }
+            ];
+            dx = snakeGridSize;
+            dy = 0;
+            spawnSnakeFurniture();
+            updateScoresUI();
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateSnakeGame, 120);
+        } else {
+            // تهيئة لعبة صائد الكراسي
+            catcherLives = 3;
+            catcherItems = [];
+            catcherSpeedMultiplier = 1;
+            catcherBasket.x = (canvas.width / 2) - (catcherBasket.width / 2);
+            updateScoresUI();
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateCatcherGame, 30); // معدل إطارات أسرع للحركة الناعمة
+        }
+    }
+
+    function stopActiveGame() {
+        if(gameInterval) clearInterval(gameInterval);
+        isGameRunning = false;
+        
+        const startBtn = document.getElementById('startGameBtn');
+        if (startBtn) {
+            startBtn.innerText = "ابدأ اللعب الآن 🚀";
+            startBtn.className = "game-btn-play start";
+        }
+        
+        document.removeEventListener('keydown', handleDirectionKeys);
+        if (ctx) drawPlaceholder();
+    }
+
+    // ==================== ميكانيكا لعبة الدودة (Snake) ====================
+    function spawnSnakeFurniture() {
+        const maxX = (canvas.width / snakeGridSize) - 1;
+        const maxY = (canvas.height / snakeGridSize) - 1;
+        const randomX = Math.floor(Math.random() * maxX) * snakeGridSize;
+        const randomY = Math.floor(Math.random() * maxY) * snakeGridSize;
+        const itemType = furnitureTypes[Math.floor(Math.random() * furnitureTypes.length)];
+        
+        furnitureItem = {
+            x: randomX,
+            y: randomY,
+            type: itemType.type,
+            price: itemType.price,
+            color: itemType.color
+        };
+        
+        snake.forEach(part => {
+            if (part.x === randomX && part.y === randomY) spawnSnakeFurniture();
+        });
+    }
+
+    function updateSnakeGame() {
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+        
+        if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+            triggerGameOver();
+            return;
+        }
+        
+        for (let i = 0; i < snake.length; i++) {
+            if (snake[i].x === head.x && snake[i].y === head.y) {
+                triggerGameOver();
+                return;
+            }
+        }
+        
+        snake.unshift(head);
+        
+        if (head.x === furnitureItem.x && head.y === furnitureItem.y) {
+            gameScore += furnitureItem.price;
+            document.getElementById('gameCurrentScore').innerText = gameScore.toLocaleString('en-US') + ' ج';
+            
+            if (gameScore > snakeHighScore) {
+                snakeHighScore = gameScore;
+                localStorage.setItem('officeTownGameHighScore', snakeHighScore);
+                document.getElementById('gameHighScoreVal').innerText = snakeHighScore.toLocaleString('en-US') + ' ج';
+            }
+            spawnSnakeFurniture();
+        } else {
+            snake.pop();
+        }
+        
+        drawSnakeGame();
+    }
+
+    function drawSnakeGame() {
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // رسم الهدف
+        ctx.fillStyle = furnitureItem.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = furnitureItem.color;
+        ctx.fillRect(furnitureItem.x + 2, furnitureItem.y + 2, snakeGridSize - 4, snakeGridSize - 4);
+        
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px Cairo";
+        ctx.textAlign = "center";
+        ctx.fillText(furnitureItem.type.split(' ')[0], furnitureItem.x + (snakeGridSize/2), furnitureItem.y - 4);
+
+        // رسم الدودة
+        snake.forEach((part, index) => {
+            const isHead = index === 0;
+            ctx.fillStyle = isHead ? "var(--color-purple)" : "rgba(139, 92, 246, 0.6)";
+            ctx.shadowBlur = isHead ? 10 : 0;
+            ctx.shadowColor = "var(--color-purple)";
+            ctx.fillRect(part.x + 1, part.y + 1, snakeGridSize - 2, snakeGridSize - 2);
+            
+            if(isHead) {
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(part.x + 4, part.y + 4, 3, 3);
+                ctx.fillRect(part.x + 12, part.y + 4, 3, 3);
+            }
+        });
+        ctx.shadowBlur = 0;
+    }
+
+    // ==================== ميكانيكا لعبة صائد الكراسي (Catcher) ====================
+    function updateCatcherLivesHearts() {
+        let hearts = '';
+        for(let i=0; i<3; i++) {
+            hearts += (i < catcherLives) ? '❤' : '🖤';
+        }
+        document.getElementById('gameLivesVal').innerText = hearts;
+    }
+
+    function updateCatcherGame() {
+        // احتمالية توليد قطعة جديدة
+        if(Math.random() < 0.02 * catcherSpeedMultiplier && catcherItems.length < 4) {
+            const maxX = canvas.width - 20;
+            const randomX = Math.floor(Math.random() * maxX);
+            const itemType = furnitureTypes[Math.floor(Math.random() * furnitureTypes.length)];
+            catcherItems.push({
+                x: randomX,
+                y: -10,
+                speed: (1.5 + Math.random() * 2) * catcherSpeedMultiplier,
+                type: itemType.type,
+                char: itemType.char,
+                price: itemType.price,
+                color: itemType.color
+            });
+        }
+
+        // تحريك وفحص تصادم القطع
+        for (let i = catcherItems.length - 1; i >= 0; i--) {
+            let item = catcherItems[i];
+            item.y += item.speed;
+
+            // كشف الاصطدام بالحاوية بالأسفل
+            const basketY = canvas.height - catcherBasket.height - 10;
+            if (item.y + 15 >= basketY && item.y <= basketY + catcherBasket.height) {
+                if (item.x + 15 >= catcherBasket.x && item.x <= catcherBasket.x + catcherBasket.width) {
+                    // تم التجميع بنجاح!
+                    gameScore += item.price;
+                    document.getElementById('gameCurrentScore').innerText = gameScore.toLocaleString('en-US') + ' ج';
+                    
+                    if (gameScore > catcherHighScore) {
+                        catcherHighScore = gameScore;
+                        localStorage.setItem('officeTownCatcherHighScore', catcherHighScore);
+                        document.getElementById('gameHighScoreVal').innerText = catcherHighScore.toLocaleString('en-US') + ' ج';
+                    }
+
+                    // زيادة طفيفة في سرعة النزول كلما جمع نقاطاً أكثر لزيادة الحماس
+                    catcherSpeedMultiplier = 1 + (gameScore / 1000000);
+
+                    catcherItems.splice(i, 1);
+                    continue;
+                }
+            }
+
+            // خروج القطعة من أسفل الشاشة (فشل تجميع)
+            if (item.y > canvas.height) {
+                catcherLives--;
+                updateCatcherLivesHearts();
+                catcherItems.splice(i, 1);
+                
+                if (catcherLives <= 0) {
+                    triggerGameOver();
+                    return;
+                }
+            }
+        }
+
+        drawCatcherGame();
+    }
+
+    function drawCatcherGame() {
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // رسم حاوية التجميع
+        ctx.fillStyle = catcherBasket.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = catcherBasket.color;
+        ctx.fillRect(catcherBasket.x, canvas.height - catcherBasket.height - 10, catcherBasket.width, catcherBasket.height);
+        
+        // رسم حواف إضافية للحاوية لتبدو مثل الصندوق
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(catcherBasket.x, canvas.height - catcherBasket.height - 15, 6, 6);
+        ctx.fillRect(catcherBasket.x + catcherBasket.width - 6, canvas.height - catcherBasket.height - 15, 6, 6);
+        ctx.shadowBlur = 0;
+
+        // رسم القطع المتساقطة
+        catcherItems.forEach(item => {
+            ctx.fillStyle = item.color;
+            ctx.font = "20px sans-serif";
+            ctx.fillText(item.char, item.x, item.y);
+            
+            ctx.font = "9px Cairo";
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.fillText(item.type.split(' ')[0], item.x + 8, item.y - 12);
+        });
+    }
+
+    // ==================== معالجات الإدخال والتحكم ====================
+    function handleDirectionKeys(e) {
+        if(!isGameRunning) return;
+        const keyPressed = e.key;
+
+        if(activeGameMode === 'snake') {
+            if (keyPressed === 'ArrowLeft' && dx === 0) {
+                dx = -snakeGridSize; dy = 0;
+            } else if (keyPressed === 'ArrowRight' && dx === 0) {
+                dx = snakeGridSize; dy = 0;
+            } else if (keyPressed === 'ArrowUp' && dy === 0) {
+                dx = 0; dy = -snakeGridSize;
+            } else if (keyPressed === 'ArrowDown' && dy === 0) {
+                dx = 0; dy = snakeGridSize;
+            }
+        } else {
+            // حركة حاوية الصائد يميناً ويساراً
+            if (keyPressed === 'ArrowLeft') {
+                catcherBasket.x = Math.max(0, catcherBasket.x - 25);
+            } else if (keyPressed === 'ArrowRight') {
+                catcherBasket.x = Math.min(canvas.width - catcherBasket.width, catcherBasket.x + 25);
+            }
+        }
+    }
+
+    function sendGameDirection(dir) {
+        if(!isGameRunning) return;
+        
+        if(activeGameMode === 'snake') {
+            if (dir === 'LEFT' && dx === 0) {
+                dx = -snakeGridSize; dy = 0;
+            } else if (dir === 'RIGHT' && dx === 0) {
+                dx = snakeGridSize; dy = 0;
+            } else if (dir === 'UP' && dy === 0) {
+                dx = 0; dy = -snakeGridSize;
+            } else if (dir === 'DOWN' && dy === 0) {
+                dx = 0; dy = snakeGridSize;
+            }
+        } else {
+            if (dir === 'LEFT') {
+                catcherBasket.x = Math.max(0, catcherBasket.x - 35);
+            } else if (dir === 'RIGHT') {
+                catcherBasket.x = Math.min(canvas.width - catcherBasket.width, catcherBasket.x + 35);
+            }
+        }
+    }
+
+    function triggerGameOver() {
+        stopActiveGame();
+        if(activeGameMode === 'snake') {
+            alert(`💥 اصطدمت الشاحنة!\nإجمالي مبيعات الشحنة الفورية التي تم تجميعها: ${gameScore.toLocaleString('en-US')} جنيه!`);
+        } else {
+            alert(`💥 انتهت المحاولات المتوفرة!\nإجمالي قيمة الكراسي التي قمت بتجميعها وحمايتها: ${gameScore.toLocaleString('en-US')} جنيه!`);
+        }
     }
 
     setInterval(() => {
