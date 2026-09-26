@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Town | Factory Command Center v20.1</title>
+    <title>Office Town | Factory Command Center v22.4</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
             --bg-main: #030712;
             --card-bg: rgba(17, 24, 39, 0.85);
-            --card-hover-bg: rgba(31, 41, 55, 0.9);
             --input-bg: #111827;
             --border-color: rgba(168, 85, 247, 0.35);
             --border-glow: rgba(234, 179, 8, 0.6);
@@ -122,7 +121,7 @@
 
         .premium-sales-summary {
             background: var(--card-bg); padding: 32px; border-radius: 24px; border: 1px solid var(--border-color);
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; backdrop-filter: blur(16px); box-shadow: var(--glass-shadow);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px; backdrop-filter: blur(16px); box-shadow: var(--glass-shadow);
         }
         .circle-progress-card { display: flex; align-items: center; gap: 28px; background: rgba(0,0,0,0.35); padding: 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06); }
         
@@ -140,6 +139,19 @@
         .circle-info-side h5 { font-size: 15px; font-weight: 800; color: var(--text-main); }
         .circle-info-side p { font-size: 28px; font-weight: 900; color: var(--text-gold); }
         .circle-info-side .sub-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+        .commissions-display-bar {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;
+        }
+        .commission-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px dashed var(--border-color); border-radius: 18px; padding: 20px 25px;
+            display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
+        }
+        .comm-meta h6 { font-size: 13px; color: var(--text-muted); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .comm-meta p { font-size: 26px; font-weight: 900; margin-top: 4px; color: #fff; }
+        .comm-status-badge { font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 8px; }
+        .cs-unlocked { background: rgba(16, 185, 129, 0.15); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.3); }
 
         .order-container { display: flex; flex-direction: column; gap: 20px; }
         .order-row-card {
@@ -200,7 +212,6 @@
         .btn-trash { background: transparent; border: none; color: var(--color-danger); cursor: pointer; font-size: 11px; width: fit-content; text-align: right; margin-top: 2px; }
         .btn-trash:hover { text-decoration: underline; }
 
-        /* ✅ إصلاح حتمي لكارت نوع العملية في جدول التارجت */
         .badge-only-collect, .badge-normal-sale {
             display: inline-flex !important;
             align-items: center !important;
@@ -247,7 +258,6 @@
         .day-work { background: rgba(16, 185, 129, 0.12); color: #fff; border: 1px solid rgba(16, 185, 129, 0.3); }
         .day-off { background: rgba(244, 63, 94, 0.12); color: var(--text-muted); border: 1px solid rgba(244, 63, 94, 0.3); }
 
-        /* الألعاب */
         .game-grid-layout { display: flex; gap: 28px; align-items: start; }
         .game-screen-wrapper {
             flex-grow: 1; background: var(--card-bg); padding: 28px; border-radius: 24px; border: 1px solid var(--border-color);
@@ -331,7 +341,7 @@
                         <label>المقدم المدفوع (جنيه)</label>
                         <input type="number" id="paidPrice" class="form-control" min="0">
                     </div>
-                    <button type="submit" class="btn-submit">إدراج وتتبع في المصنع 🚀</button>
+                    <button type="submit" class="btn-submit">إدراج وتتبع في المصنع والتارجت 🚀</button>
                 </form>
             </div>
 
@@ -360,7 +370,6 @@
         </div>
     </div>
 
-    <!-- ✅ إضافة فلتر أرشفة الشهور في تبويب الأرشيف -->
     <div id="archive-tab" class="tab-content">
         <div class="archive-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
@@ -413,6 +422,24 @@
             </div>
         </div>
 
+        <div class="commissions-display-bar">
+            <div class="commission-card" id="commSalesCard">
+                <div class="comm-meta">
+                    <h6>💼 عمولة المبيعات (المبيعات × نسبة الإنجاز %)</h6>
+                    <p id="txtCommSales">0 ج</p>
+                </div>
+                <div class="comm-status-badge cs-unlocked" id="badgeCommSales">نسبة متغيرة حسب الإنجاز 🎯</div>
+            </div>
+
+            <div class="commission-card" id="commCollectedCard">
+                <div class="comm-meta">
+                    <h6>💰 عمولة التحصيلات (المحصل كاش × نسبة الإنجاز %)</h6>
+                    <p id="txtCommCollected">0 ج</p>
+                </div>
+                <div class="comm-status-badge cs-unlocked" id="badgeCommCollected">نسبة متغيرة حسب الإنجاز 💵</div>
+            </div>
+        </div>
+
         <div class="main-grid">
             <div class="form-card">
                 <h3>إدارة التارجت الشهري</h3>
@@ -424,7 +451,7 @@
                     </div>
                 </div>
 
-                <h3 style="margin-top: 25px;">تسجيل عملية بيع جديدة</h3>
+                <h3 style="margin-top: 25px;">تسجيل عملية بيع مباشرة</h3>
                 <form id="salesForm">
                     <div class="form-group">
                         <label>البيان / العميل</label>
@@ -491,7 +518,6 @@
         </div>
     </div>
 
-    <!-- قسم الألعاب العائد بناءً على طلبك -->
     <div id="games-tab" class="tab-content">
         <div class="game-grid-layout">
             <div class="game-controls-card">
@@ -536,7 +562,7 @@
                     <label>إجمالي المبلغ المحصل كاش حتى الآن (جنيه)</label>
                     <input type="number" id="editSaleCollected" class="form-control" min="0" required>
                 </div>
-                <button type="submit" class="btn-submit" style="background: var(--text-gold); color:#000; font-weight:900; margin-top:15px;">حفظ وتحديث المبلغ المتبقي والتارجت 🔄</button>
+                <button type="submit" class="btn-submit" style="background: var(--text-gold); color:#000; font-weight:900; margin-top:15px;">حفظ وتحديث المبلغ المتبقي والتارجت والمصنع 🔄</button>
             </form>
         </div>
     </div>
@@ -615,10 +641,10 @@
     }
 
     function exportSystemData() {
-        const fullBackup = { version: "v20.1", exportTime: new Date().toISOString(), activeOrders, archivedOrders, monthlyTarget, salesTransactions };
+        const fullBackup = { version: "v22.4", exportTime: new Date().toISOString(), activeOrders, archivedOrders, monthlyTarget, salesTransactions };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
         const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr);
-        anchor.setAttribute("download", `OfficeTown_Data_V20_1.json`);
+        anchor.setAttribute("download", `OfficeTown_Data_V22_4.json`);
         document.body.appendChild(anchor); anchor.click(); anchor.remove();
     }
 
@@ -639,6 +665,7 @@
         }; reader.readAsText(file); event.target.value = '';
     }
 
+    // 🔗 إضافة الأوردر مع الربط المباشر بجدول المبيعات والتارجت
     document.getElementById('orderForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const clientName = document.getElementById('clientName').value;
@@ -650,18 +677,56 @@
         const paidPrice = document.getElementById('paidPrice').value === "" ? 0 : parseFloat(document.getElementById('paidPrice').value);
         const deliveryDate = calculateDeliveryDate(startDate, durationDays);
 
-        activeOrders.push({ id: Date.now(), clientName, clientPhone, startDate, durationDays, totalPrice, shippingPrice, paidPrice, deliveryDate });
-        saveAndRender(); this.reset();
+        const orderId = Date.now();
+        
+        // 1. إضافة لأوامر الإنتاج
+        activeOrders.push({ id: orderId, clientName, clientPhone, startDate, durationDays, totalPrice, shippingPrice, paidPrice, deliveryDate });
+
+        // 2. الربط المباشر بشاشة المبيعات
+        salesTransactions.push({ 
+            id: orderId, 
+            type: 'sale', 
+            note: `أوردر مصنع: ${clientName}`, 
+            amount: totalPrice, 
+            collected: paidPrice, 
+            date: startDate 
+        });
+
+        saveAndRender(); 
+        this.reset();
+        alert('🚀 تم إدراج الأوردر وتحديث المصنع والتارجت والعمولات فوراً!');
     });
 
+    // 🔗 ربط تحصيل مبالغ الأوردرات بلائحة المبيعات
     function addPayment(id) {
-        const amtInput = document.getElementById(`pay-input-${id}`); const amount = parseFloat(amtInput.value);
+        const amtInput = document.getElementById(`pay-input-${id}`); 
+        const amount = parseFloat(amtInput.value);
         if (isNaN(amount) || amount <= 0) return;
+        
         const order = activeOrders.find(o => o.id === id);
         if (order) {
-            const overallTotal = order.totalPrice + (order.shippingPrice || 0); const remaining = overallTotal - order.paidPrice;
+            const overallTotal = order.totalPrice + (order.shippingPrice || 0); 
+            const remaining = overallTotal - order.paidPrice;
             if (amount > remaining) { alert(`المبلغ المكتوب يتخطى المتبقي وهو (${remaining} ج)`); return; }
-            order.paidPrice += amount; saveAndRender();
+            
+            order.paidPrice += amount;
+
+            // تحديث السجل المربوط في شاشة المبيعات
+            const saleItem = salesTransactions.find(t => t.id === id);
+            if(saleItem) {
+                saleItem.collected = order.paidPrice;
+            } else {
+                salesTransactions.push({
+                    id: Date.now(),
+                    type: 'only_collect',
+                    note: `تحصيل أوردر: ${order.clientName}`,
+                    amount: 0,
+                    collected: amount,
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
+
+            saveAndRender();
         }
     }
 
@@ -741,14 +806,23 @@
                 return;
             }
 
+            const factoryOrder = activeOrders.find(o => o.id === id);
+            if (factoryOrder) {
+                factoryOrder.totalPrice = item.amount;
+                factoryOrder.paidPrice = item.collected;
+            }
+
             saveAndRender();
             closeEditSaleModal();
-            alert('✅ تم تعديل المبلغ المتبقي بنجاح وتحديث التارجت!');
+            alert('✅ تم تعديل المبلغ المتبقي بنجاح وتحديث التارجت والمصنع!');
         }
     });
 
     function deleteSaleTransaction(id) {
-        if(confirm('حذف هذه العملية؟')) { salesTransactions = salesTransactions.filter(t => t.id !== id); saveAndRender(); }
+        if(confirm('حذف هذه العملية؟')) { 
+            salesTransactions = salesTransactions.filter(t => t.id !== id); 
+            saveAndRender(); 
+        }
     }
 
     function updateMonthlyTarget() {
@@ -758,6 +832,7 @@
         alert('🎯 تم تعديل تارجت المبيعات بنجاح!');
     }
 
+    // 🎯 دالة حساب لوحة المبيعات والعمولات
     function renderSalesDashboard() {
         document.getElementById('monthlyTargetInput').value = monthlyTarget;
         document.getElementById('statsMonthlyTarget').innerText = monthlyTarget.toLocaleString('en-US') + ' ج';
@@ -780,6 +855,19 @@
         document.getElementById('circleCollectedText').innerHTML = `${collectedPercent}%<span>تحصيل</span>`;
         document.getElementById('txtTotalCollected').innerText = totalCollected.toLocaleString('en-US') + ' ج';
 
+        // 💰 معادلة عمولة الإنجاز بالـ %
+        let commSalesVal = 0;
+        let commCollectedVal = 0;
+
+        if (monthlyTarget > 0) {
+            let ratio = totalSales / monthlyTarget; // النسبه الناتج من قسمة المبيعات على التارجت
+            commSalesVal = totalSales * (ratio / 100);
+            commCollectedVal = totalCollected * (ratio / 100);
+        }
+
+        document.getElementById('txtCommSales').innerText = Math.round(commSalesVal).toLocaleString('en-US') + ' ج';
+        document.getElementById('txtCommCollected').innerText = Math.round(commCollectedVal).toLocaleString('en-US') + ' ج';
+
         document.getElementById('statsRemainingToTarget').innerText = remainingToTarget.toLocaleString('en-US') + ' ج';
         document.getElementById('statsUncollectedSales').innerText = uncollected.toLocaleString('en-US') + ' ج';
 
@@ -794,9 +882,7 @@
             const isOnlyCollect = (t.type === 'only_collect');
             const uncoll = isOnlyCollect ? 0 : (t.amount - t.collected);
             
-            // ✅ البادج المضبوط والمحاذي بشكل كامل بدون لغبطة
             const typeBadge = isOnlyCollect ? `<span class="badge-only-collect">💵 تحصيل نقدية فقط</span>` : `<span class="badge-normal-sale">💼 عملية بيع جديدة</span>`;
-            
             const showEditBtn = (!isOnlyCollect && uncoll > 0);
             const editBtnHTML = showEditBtn ? `<button class="btn-edit-sale" onclick="openEditSaleModal(${t.id})">✏️ تعديل والمتبقي</button>` : '';
 
@@ -897,10 +983,9 @@
         document.getElementById('totalRemainingMoney').innerText = rm.toLocaleString('en-US') + ' ج';
     }
 
-    // ✅ دالة الأرشيف المحدثة مع دعم فلتر الشهور
     function renderArchive() {
         const body = document.getElementById('archiveList'); body.innerHTML = '';
-        const selectedMonth = document.getElementById('archiveMonthFilter').value; // صيغة YYYY-MM
+        const selectedMonth = document.getElementById('archiveMonthFilter').value;
 
         let listToDisplay = archivedOrders;
         if (selectedMonth) {
@@ -970,7 +1055,14 @@
         window.print(); printArea.innerHTML = '';
     }
 
-    function deleteActive(id) { if(confirm('حذف الأوردر؟')) { activeOrders = activeOrders.filter(o => o.id !== id); saveAndRender(); } }
+    function deleteActive(id) { 
+        if(confirm('حذف الأوردر من المصنع والتارجت؟')) { 
+            activeOrders = activeOrders.filter(o => o.id !== id); 
+            salesTransactions = salesTransactions.filter(t => t.id !== id);
+            saveAndRender(); 
+        } 
+    }
+    
     function deleteArchive(id) { if(confirm('حذف من الأرشيف؟')) { archivedOrders = archivedOrders.filter(o => o.id !== id); saveAndRender(); } }
 
     function saveAndRender() {
